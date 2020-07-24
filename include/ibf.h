@@ -93,6 +93,8 @@ void set_arguments(arguments const & args, ibf_arguments & ibf_args,
 */
 void read_binary(robin_hood::unordered_node_map<uint64_t, uint64_t> & hash_table, std::filesystem::path filename);
 
+void write_binary_to_not_binary(std::filesystem::path filename);
+
 /*!\brief Reads a header file function minimiser creates
 * \param args                 The minimiser arguments to use (seed, shape, window size).
 * \param ibf_args             The IBF specific arguments to use (bin size, number of hash functions, ...). See

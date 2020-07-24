@@ -32,6 +32,34 @@ void parsing(seqan3::argument_parser & parser, arguments & args)
     args.s = seqan3::seed{se};
 }
 
+int run_needle_binary(seqan3::argument_parser & parser)
+{
+    std::filesystem::path filename;
+    parser.info.short_description = "Translates a binary file to a non binary one.";
+    parser.add_positional_option(filename, "Please provide a binary file.");
+
+    try
+    {
+        parser.parse();
+    }
+    catch (seqan3::argument_parser_error const & ext)
+    {
+        seqan3::debug_stream << "Error. Incorrect command line input for minimiser. " << ext.what() << "\n";
+        return -1;
+    }
+    try
+    {
+        write_binary_to_not_binary(filename);
+    }
+    catch (const std::invalid_argument & e)
+    {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
+
+    return 0;
+}
+
 // Initialize arguments for ibf and minimiser
 void initialise_ibf_argument_parser(seqan3::argument_parser & parser, ibf_arguments & ibf_args)
 {
@@ -355,7 +383,7 @@ int run_needle_test(seqan3::argument_parser & parser)
 
 int main(int argc, char const ** argv)
 {
-    seqan3::argument_parser needle_parser{"needle", argc, argv, true, {"ibf", "ibfmin", "insert", "minimiser", "search",
+    seqan3::argument_parser needle_parser{"needle", argc, argv, true, {"binary", "ibf", "ibfmin", "insert", "minimiser", "search",
                                                                        "stats", "test"}};
     needle_parser.info.description.push_back("Needle allows you to build an Interleaved Bloom Filter (IBF) with the "
                                              "command ibf or search an IBF with the search command.");
@@ -374,6 +402,8 @@ int main(int argc, char const ** argv)
     seqan3::argument_parser & sub_parser = needle_parser.get_sub_parser(); // hold a reference to the sub_parser
     if (sub_parser.info.app_name == std::string_view{"needle-ibf"})
         run_needle_ibf(sub_parser);
+    else if (sub_parser.info.app_name == std::string_view{"needle-binary"})
+        run_needle_binary(sub_parser);
     else if (sub_parser.info.app_name == std::string_view{"needle-ibfmin"})
         run_needle_ibf_min(sub_parser);
     else if (sub_parser.info.app_name == std::string_view{"needle-insert"})

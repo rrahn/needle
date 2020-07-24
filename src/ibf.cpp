@@ -113,6 +113,23 @@ void read_binary(robin_hood::unordered_node_map<uint64_t, uint64_t> & hash_table
     fin.close();
 }
 
+// Write binary file to non_binary
+void write_binary_to_not_binary(std::filesystem::path filename)
+{
+    robin_hood::unordered_node_map<uint64_t, uint64_t> hash_table;
+    std::ofstream outfile;
+    read_binary(hash_table, filename);
+
+    outfile.open(std::string{"./"} + std::string{filename.stem()}
+                 + ".not_binary");
+    for (auto & elem : hash_table)
+    {
+        outfile << elem.first << " " << elem.second << "\n";
+    }
+    outfile.close();
+    hash_table.clear();
+}
+
 // Reads one header file minimiser creates
 void read_header(arguments & args, ibf_arguments & ibf_args, std::filesystem::path filename,
                  std::vector<uint64_t> & counts, uint32_t & normalized_exp_value)
@@ -643,6 +660,7 @@ void minimiser(arguments const & args, ibf_arguments & ibf_args)
                      + ".minimiser", std::ios::binary);
         for (auto & elem : hash_table)
         {
+            std::cout << "HashTable: "<< elem.first << " " << elem.second << "\n";
             outfile.write((char*) &elem.first, sizeof(elem.first));
             outfile.write((char*) &elem.second, sizeof(elem.second));
         }
