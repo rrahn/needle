@@ -2,6 +2,7 @@
 #include <seqan3/std/filesystem>
 
 #include "minimiser.h"
+#include "normalise.h"
 #include "ibf.h"
 #include "search.h"
 
@@ -218,6 +219,42 @@ int run_needle_minimiser(seqan3::argument_parser & parser)
     return 0;
 }
 
+int run_needle_normalise(seqan3::argument_parser & parser)
+{
+    std::vector<std::filesystem::path> sequence_files;
+    std::filesystem::path path_out{"./"};
+    int8_t avg{40};
+    uint16_t min_len{0};
+    int8_t quality{20};
+
+    parser.info.short_description = "Normalises given experiments.";
+    parser.add_positional_option(sequence_files, "Please provide at least one sequence file.");
+    parser.add_option(avg, 'a', "avg", "The minimum average quality a read should have after triming. Default: 40.");
+    parser.add_option(min_len, 'l', "length", "The minimum length a read should have after triming. Default: 0.");
+    parser.add_option(quality, 'q', "quality", "The quality score used for timming. Default: 20.");
+
+    try
+    {
+        parser.parse();
+    }
+    catch (seqan3::argument_parser_error const & ext)
+    {
+        seqan3::debug_stream << "Error. Incorrect command line input for minimiser. " << ext.what() << "\n";
+        return -1;
+    }
+    try
+    {
+        normalise(sequence_files, path_out, seqan3::phred42{avg}, min_len, seqan3::phred42{quality});
+    }
+    catch (const std::invalid_argument & e)
+    {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
+
+    return 0;
+}
+
 int run_needle_search(seqan3::argument_parser & parser)
 {
     arguments args{};
@@ -355,8 +392,8 @@ int run_needle_test(seqan3::argument_parser & parser)
 
 int main(int argc, char const ** argv)
 {
-    seqan3::argument_parser needle_parser{"needle", argc, argv, true, {"ibf", "ibfmin", "insert", "minimiser", "search",
-                                                                       "stats", "test"}};
+    seqan3::argument_parser needle_parser{"needle", argc, argv, true, {"ibf", "ibfmin", "insert", "minimiser",
+                                                                       "normalise", "search", "stats", "test"}};
     needle_parser.info.description.push_back("Needle allows you to build an Interleaved Bloom Filter (IBF) with the "
                                              "command ibf or search an IBF with the search command.");
     needle_parser.info.version = "1.0.0";
@@ -380,6 +417,8 @@ int main(int argc, char const ** argv)
         run_needle_insert(sub_parser);
     else if (sub_parser.info.app_name == std::string_view{"needle-minimiser"})
         run_needle_minimiser(sub_parser);
+    else if (sub_parser.info.app_name == std::string_view{"needle-normalise"})
+        run_needle_normalise(sub_parser);
     else if (sub_parser.info.app_name == std::string_view{"needle-search"})
         run_needle_search(sub_parser);
     else if (sub_parser.info.app_name == std::string_view{"needle-stats"})
