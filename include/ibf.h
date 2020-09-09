@@ -40,6 +40,9 @@ struct RandomGenerator {
 	}
 };
 
+void count(arguments const & args, std::filesystem::path sequence_file, std::filesystem::path genome_file,
+           std::filesystem::path out_file);
+
 /*!\brief Calculate best bin size based on number of elements maximal inserted, false positive rate and number of
  *        hash functions. See: https://hur.st/bloomfilter/
  * \param count     The number of elements to be stored.
