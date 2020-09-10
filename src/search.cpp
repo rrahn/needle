@@ -49,29 +49,54 @@ void estimate(arguments const & args, IBFType & ibf, std::vector<float> & expres
     }
 
     std::vector<uint32_t> counter;
+    std::vector<std::vector<uint32_t>>  sums;
+    std::vector<std::vector<uint32_t>> counters;
     std::vector<std::vector<uint32_t>> estimations;
+    float smallest_exp = expressions[0];
+    float exp_before = expressions[0];
+
     for (auto & expression : expressions)
     {
         load_ibf(ibf, path_in.string() + "IBF_" + std::to_string(expression));
         for (int i = 0; i < seqs.size(); ++i)
         {
             counter.assign(ibf.bin_count(), 0);
-            if (estimations.size() <= i)
+            if (expression == smallest_exp)
+            {
                 estimations.push_back(counter);
-            minimiser_length = check_ibf(args, ibf, counter, seqs[i]);
-            for(unsigned j = 0; j < counter.size(); j++)
-                estimations[i][j] = estimations[i][j] + std::round(counter[j] * expression);
-
+                sums.push_back(counter);
+                minimiser_length = check_ibf(args, ibf, counter, seqs[i]);
+                counters.push_back(counter);
+            }
+            else
+            {
+                minimiser_length = check_ibf(args, ibf, counter, seqs[i]);
+                for(int j = 0; j < counter.size(); ++j)
+                {
+                    sums[i][j] = counters[i][j] -counter[j];
+                    estimations[i][j] = estimations[i][j] + std::round(sums[i][j] *exp_before);
+                    counters[i][j] = counter[j];
+                }
+            }
             counter.clear();
+            exp_before = expression;
         }
     }
+
     std::ofstream outfile;
     outfile.open(std::string{file_out});
     for (int i = 0; i < seqs.size(); ++i)
     {
         outfile << ids[i] << "\t";
         for (int j = 0; j < ibf.bin_count(); ++j)
-             outfile << estimations[i][j] << "\t";
+        {
+            if (sums[i][j] > 0)
+                 outfile << estimations[i][j]/sums[i][j] << "\t";
+            else
+                 outfile << sums[i][j] << "\t";
+
+        }
+
 
         outfile << "\n";
     }
