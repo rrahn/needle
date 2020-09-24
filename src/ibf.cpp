@@ -386,8 +386,6 @@ std::vector<uint32_t> ibf(arguments const & args, ibf_arguments & ibf_args)
                     ibf.emplace(elem.first,seqan3::bin_index{i});
                 else if ((((double) elem.second/mean)) >= ibf_args.expression_levels[j])
                     ibf.emplace(elem.first,seqan3::bin_index{i});
-                else //If elem is not expressed at this level, it won't be expressed at a higher level
-                    hash_table.erase(elem.first);
             }
 
             // Store IBFs
