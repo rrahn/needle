@@ -72,6 +72,8 @@ int run_needle_ibf(seqan3::argument_parser & parser)
     parser.add_option(ibf_args.experiment_names, 'f', "experiment-names", "If set, names of the experiments are stored"
                                                                           " in a txt file.");
 
+    for(float i = 0.25; i < 32;i = i + 0.25)
+        ibf_args.expression_levels.push_back(i);
     try
     {
         parsing(parser, args);

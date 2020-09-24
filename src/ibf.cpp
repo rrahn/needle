@@ -380,36 +380,33 @@ std::vector<uint32_t> ibf(arguments const & args, ibf_arguments & ibf_args)
         normal_expression_values.push_back(mean);
 
         // Every minimiser is stored in IBF, if it occurence divided by the mean is greater or equal expression level
-        for (auto & elem : hash_table)
+        for (unsigned j = 0; j < ibf_args.expression_levels.size(); j++)
         {
-            for (unsigned j = 0; j < ibf_args.expression_levels.size(); j++)
+            for (auto & elem : hash_table)
             {
                 if ((ibf_args.expression_levels[j] == 0) & (elem.second > ibf_args.cutoffs[i])) // for comparison with mantis, SBT
                     ibfs[j].emplace(elem.first,seqan3::bin_index{i});
                 else if ((((double) elem.second/mean)) >= ibf_args.expression_levels[j])
                     ibfs[j].emplace(elem.first,seqan3::bin_index{i});
                 else //If elem is not expressed at this level, it won't be expressed at a higher level
-                    break;
+                    hash_table.erase(elem.first);
+            }
+            // Store IBFs
+            std::filesystem::path filename{ibf_args.path_out.string() + "IBF_" + std::to_string(ibf_args.expression_levels[j])};
+            if (args.compressed)
+            {
+                seqan3::interleaved_bloom_filter<seqan3::data_layout::compressed> ibf{ibfs[j]};
+                store_ibf(ibf, filename);
+            }
+            else
+            {
+                store_ibf(ibfs[j], filename);
             }
         }
         hash_table.clear();
     }
     genome_sequences.clear();
-    // Store IBFs
-    for (unsigned i = 0; i < ibf_args.expression_levels.size(); i++)
-    {
-        std::filesystem::path filename{ibf_args.path_out.string() + "IBF_" + std::to_string(ibf_args.expression_levels[i])};
-        if (args.compressed)
-        {
-            seqan3::interleaved_bloom_filter<seqan3::data_layout::compressed> ibf{ibfs[i]};
-		    store_ibf(ibf, filename);
-        }
-        else
-        {
-            store_ibf(ibfs[i], filename);
-        }
-
-    }
+    seqan3::debug_stream << normal_expression_values << "\n";
 	return normal_expression_values;
 
 }
