@@ -20,7 +20,7 @@
 
 // Check if one sequence is present in a given ibf
 template <class IBFType>
-uint32_t check_ibf(arguments const & args, IBFType & ibf, std::vector<uint32_t> & counter, seqan3::dna4_vector const seq)
+std::vector<uint32_t> check_ibf(arguments const & args, IBFType & ibf, std::vector<uint32_t> & counter, seqan3::dna4_vector const seq, float threshold)
 {
     uint64_t minimiser_length = 0;
     for (auto minHash : seqan3::views::minimiser_hash(seq, args.shape, args.w_size, args.s))
@@ -30,7 +30,15 @@ uint32_t check_ibf(arguments const & args, IBFType & ibf, std::vector<uint32_t> 
                         std::plus<int>());
         ++minimiser_length;
     }
-    return minimiser_length;
+
+    std::vector<uint32_t> results{};
+    results.assign(ibf.bin_count(), 0);
+    for(unsigned j = 0; j < counter.size(); j++)
+    {
+        if (counter[j] >= (minimiser_length * threshold))
+            results[j] = results[j] + 1;
+    }
+    return results;
 }
 
 template <class IBFType>
@@ -49,6 +57,7 @@ void estimate(arguments const & args, IBFType & ibf, std::vector<float> & expres
     }
 
     std::vector<uint32_t> counter;
+    std::vector<uint32_t> results;
     std::vector<std::vector<uint32_t>> estimations;
     for (auto & expression : expressions)
     {
@@ -58,9 +67,9 @@ void estimate(arguments const & args, IBFType & ibf, std::vector<float> & expres
             counter.assign(ibf.bin_count(), 0);
             if (estimations.size() <= i)
                 estimations.push_back(counter);
-            minimiser_length = check_ibf(args, ibf, counter, seqs[i]);
+            results = check_ibf(args, ibf, counter, seqs[i], 0.8);
             for(unsigned j = 0; j < counter.size(); j++)
-                estimations[i][j] = estimations[i][j] + std::round(counter[j] * expression);
+                estimations[i][j] = std::max(estimations[i][j], results[j]);
 
             counter.clear();
         }
