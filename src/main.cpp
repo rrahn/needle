@@ -73,6 +73,9 @@ int run_needle_estimate(seqan3::argument_parser & parser)
     parser.add_option(path_in, 'i', "in", "Directory where input files can be found.");
     initialise_argument_parser(parser, args);
 
+    for(float i = 0.25; i < 32;i = i + 0.25)
+        expressions.push_back(i);
+
     try
     {
         parsing(parser, args);
