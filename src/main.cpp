@@ -55,6 +55,54 @@ void initialise_ibf_argument_parser(seqan3::argument_parser & parser, ibf_argume
                                                               "using normalization method random. Default: 1000.");
 }
 
+int run_needle_estimate(seqan3::argument_parser & parser)
+{
+    arguments args{};
+    search_arguments search_args{};
+    parser.info.short_description = "Estimate expression value of transcript based on IBFs.";
+    parser.info.version = "1.0.0";
+    parser.info.author = "Mitra Darvish";
+    std::filesystem::path search_file;
+    std::filesystem::path path_in{"./"};
+    std::filesystem::path file_out{"expressions.out"};
+    std::vector<float> expressions{};
+
+    parser.add_positional_option(search_file, "Please provide a sequence file.");
+    parser.add_option(file_out, 'o', "out", "File where output should be stored.");
+    parser.add_option(expressions, 'e', "expression", "Which expression levels should be considered during a "
+                                                      "search.");
+    parser.add_option(path_in, 'i', "in", "Directory where input files can be found.");
+    parser.add_option(search_args.threshold, 't', "threshold", "The minimal amount of minimisers found in a transcript"
+                                                                " to consider it as found in an IBF. Default: 0.5");
+    initialise_argument_parser(parser, args);
+
+    for(float i = 0.25; i < 32;i = i + 0.25)
+        expressions.push_back(i);
+
+    try
+    {
+        parsing(parser, args);
+    }
+    catch (seqan3::argument_parser_error const & ext)                     // catch user errors
+    {
+        seqan3::debug_stream << "Error. Incorrect command line input for search. " << ext.what() << "\n";
+        return -1;
+    }
+
+    try
+    {
+        call_estimate(args, search_args, expressions, file_out, search_file, path_in);
+    }
+    catch (const std::invalid_argument & e)
+    {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
+
+    return 0;
+}
+
+
 int run_needle_ibf(seqan3::argument_parser & parser)
 {
     arguments args;
@@ -365,7 +413,7 @@ int run_needle_test(seqan3::argument_parser & parser)
 
 int main(int argc, char const ** argv)
 {
-    seqan3::argument_parser needle_parser{"needle", argc, argv, true, {"ibf", "ibfmin", "insert", "minimiser", "search",
+    seqan3::argument_parser needle_parser{"needle", argc, argv, true, {"estimate", "ibf", "ibfmin", "insert", "minimiser", "search",
                                                                        "stats", "test"}};
     needle_parser.info.description.push_back("Needle allows you to build an Interleaved Bloom Filter (IBF) with the "
                                              "command ibf or search an IBF with the search command.");
@@ -382,7 +430,9 @@ int main(int argc, char const ** argv)
         return -1;
     }
     seqan3::argument_parser & sub_parser = needle_parser.get_sub_parser(); // hold a reference to the sub_parser
-    if (sub_parser.info.app_name == std::string_view{"needle-ibf"})
+    if (sub_parser.info.app_name == std::string_view{"needle-estimate"})
+        run_needle_estimate(sub_parser);
+    else if (sub_parser.info.app_name == std::string_view{"needle-ibf"})
         run_needle_ibf(sub_parser);
     else if (sub_parser.info.app_name == std::string_view{"needle-ibfmin"})
         run_needle_ibf_min(sub_parser);
