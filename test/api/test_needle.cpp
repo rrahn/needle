@@ -267,7 +267,7 @@ TEST(estimate, small_example)
 
     ibf(args, ibf_args);
     seqan3::interleaved_bloom_filter<seqan3::data_layout::compressed> ibf;
-    estimate(args, ibf, ibf_args.expression_levels, std::string(DATA_INPUT_DIR) + "expression.out",
+    estimate(args, search_args, ibf, ibf_args.expression_levels, std::string(DATA_INPUT_DIR) + "expression.out",
              std::string(DATA_INPUT_DIR) + "mini_gen.fasta", ibf_args.path_out);
 }
 
