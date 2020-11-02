@@ -257,7 +257,7 @@ TEST(estimate, small_example)
 {
     arguments args{};
     ibf_arguments ibf_args{};
-    earch_arguments search_args{};
+    search_arguments search_args{};
     initialization_args(args);
     initialization_ibf_args(ibf_args);
     search_args.threshold = 0.8;
