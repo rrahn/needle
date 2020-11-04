@@ -1,5 +1,6 @@
 #include <seqan3/argument_parser/all.hpp>
 #include <seqan3/std/filesystem>
+#include <seqan3/core/debug_stream.hpp>
 
 #include "minimiser.h"
 #include "ibf.h"
@@ -76,8 +77,13 @@ int run_needle_estimate(seqan3::argument_parser & parser)
                                                                 " to consider it as found in an IBF. Default: 0.5");
     initialise_argument_parser(parser, args);
 
-    for(float i = 0.25; i < 32;i = i + 0.25)
-        expressions.push_back(i);
+    float start{0.0};
+    float end{0.0};
+    float steps{0.0};
+
+    parser.add_option(start, '\0', "start", "Start expression value");
+    parser.add_option(end, '\0', "end", "End expression value");
+    parser.add_option(steps, '\0', "step", "Step expression value");
 
     try
     {
@@ -88,6 +94,10 @@ int run_needle_estimate(seqan3::argument_parser & parser)
         seqan3::debug_stream << "Error. Incorrect command line input for search. " << ext.what() << "\n";
         return -1;
     }
+
+    for(float i = start; i < end;i = i + steps)
+        expressions.push_back(i);
+    seqan3::debug_stream << expressions << "\n";
 
     try
     {
@@ -125,10 +135,7 @@ int run_needle_ibf(seqan3::argument_parser & parser)
 
     parser.add_option(start, '\0', "start", "Start expression value");
     parser.add_option(end, '\0', "end", "End expression value");
-    parser.add_option(start, '\0', "step", "Step expression value");
-
-     for(float i = start; i < end;i = i + steps)
-         ibf_args.expression_levels.push_back(i);
+    parser.add_option(steps, '\0', "step", "Step expression value");
 
     try
     {
@@ -139,6 +146,10 @@ int run_needle_ibf(seqan3::argument_parser & parser)
         seqan3::debug_stream << "Error. Incorrect command line input for ibf. " << ext.what() << "\n";
         return -1;
     }
+
+    for(float i = start; i < end;i = i + steps)
+        ibf_args.expression_levels.push_back(i);
+    seqan3::debug_stream << ibf_args.expression_levels << "\n";
     try
     {
         ibf(args, ibf_args);
