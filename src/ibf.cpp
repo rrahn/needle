@@ -489,8 +489,6 @@ std::vector<uint32_t> ibf(std::vector<std::filesystem::path> minimiser_files, st
                     ibfs[j].emplace(elem.first,seqan3::bin_index{i});
                 else if ((((double) elem.second/mean)) >= expression_levels[j])
                     ibfs[j].emplace(elem.first,seqan3::bin_index{i});
-                else //If elem is not expressed at this level, it won't be expressed at a higher level
-                    break;
             }
         }
         hash_table.clear();
