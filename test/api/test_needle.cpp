@@ -555,6 +555,7 @@ TEST(test, small_example_different_threshold)
         results.clear();
         search_args.expression = 1;
         results = search(args, search_args);
+        seqan3::debug_stream << folder;
         EXPECT_EQ(expected_1, results);
         results.clear();
         if (folder == "Genome_mean/")
