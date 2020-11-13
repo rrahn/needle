@@ -186,6 +186,14 @@ int run_needle_ibf_min(seqan3::argument_parser & parser)
     parser.add_option(ibf_args.normalization_method, 'a', "normalization-method", "Choose a normalization method: mean,"
                                                                                   " median or random. Default: median.");
 
+    float start{0.0};
+    float end{0.0};
+    float steps{0.0};
+
+    parser.add_option(start, '\0', "start", "Start expression value");
+    parser.add_option(end, '\0', "end", "End expression value");
+    parser.add_option(steps, '\0', "step", "Step expression value");
+
     try
     {
         parsing(parser, args);
@@ -195,6 +203,9 @@ int run_needle_ibf_min(seqan3::argument_parser & parser)
         seqan3::debug_stream << "Error. Incorrect command line input for ibfmin. " << ext.what() << "\n";
         return -1;
     }
+    for(float i = start; i < end;i = i + steps)
+        ibf_args.expression_levels.push_back(i);
+    seqan3::debug_stream << ibf_args.expression_levels << "\n";
     try
     {
         ibf(minimiser_files, header_file, args, ibf_args, fpr);
