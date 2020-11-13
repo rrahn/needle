@@ -464,7 +464,7 @@ std::vector<uint32_t> ibf(std::vector<std::filesystem::path> minimiser_files, st
        // Add minimisers to ibf
        for (unsigned i = 0; i < minimiser_files.size(); i++)
        {
-           read_binary(hash_table, minimiser_files[i]);
+           read_binary(hash_table, minimiser_files[i].replace_extension(".minimiser"));
 
            // Get normalized expression value from header file or recalculate it when other method is asked for
            if ((normalization_method == ibf_args.normalization_method) | normalization_method == "")
