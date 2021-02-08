@@ -84,6 +84,12 @@ void count(arguments const & args, std::vector<std::filesystem::path> sequence_f
             genome_sequences.push_back(seq);
         }
     }
+    robin_hood::unordered_set<uint64_t> genome_set_table;
+    for (auto seq : genome_sequences)
+    {
+        for (auto minHash :  seqan3::views::minimiser_hash(seq, args.shape, args.w_size, args.s))
+            genome_set_table.insert(minHash);
+    }
 
     for (unsigned i = 0; i < sequence_files.size(); i++)
     {
@@ -99,11 +105,14 @@ void count(arguments const & args, std::vector<std::filesystem::path> sequence_f
         }
 
 
-        for (auto seq : sequences)
+        /*for (auto seq : sequences)
         {
             for (auto minHash : seqan3::views::minimiser_hash(seq, args.shape, args.w_size, args.s))
                 hash_table[minHash]++;
-        }
+        }*/
+        get_minimisers(args, sequences, hash_table,
+                            genome_set_table,
+                            "Genome_given", true);
         sequences.clear();
 
         outfile.open(std::string{out_path} + std::string{sequence_files[i].stem()} + ".count.out");
