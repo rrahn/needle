@@ -5,6 +5,8 @@
 #include "minimiser.h"
 #include "estimate.h"
 
+#include <seqan3/core/debug_stream.hpp>
+
 #ifndef DATA_INPUT_DIR
 #  define DATA_INPUT_DIR @DATA_INPUT_DIR@
 #endif
@@ -225,7 +227,7 @@ TEST(ibfmin, given_expression_levels)
     auto agent = ibf.membership_agent();
 
     sdsl::bit_vector expected_result(1, 0);
-    EXPECT_EQ(expected_result,  agent.bulk_contains(97));
+    EXPECT_EQ(expected_result,  agent.bulk_contains(2));
     expected_result[0] = 1;
     EXPECT_EQ(expected_result,  agent.bulk_contains(24));
     std::filesystem::remove(tmp_dir/"Test_IBF_1");
@@ -256,7 +258,7 @@ TEST(ibfmin, given_expression_levels_multiple_threads)
     auto agent = ibf.membership_agent();
 
     sdsl::bit_vector expected_result(1, 0);
-    EXPECT_EQ(expected_result,  agent.bulk_contains(97));
+    EXPECT_EQ(expected_result,  agent.bulk_contains(2));
     expected_result[0] = 1;
     EXPECT_EQ(expected_result,  agent.bulk_contains(24));
     std::filesystem::remove(tmp_dir/"Test_IBF_1");

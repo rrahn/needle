@@ -337,13 +337,16 @@ void ibf_helper(std::vector<std::filesystem::path> const & minimiser_files, argu
         // Every minimiser is stored in IBF, if it occurence is greater than or equal to the expression level
         for (auto && elem : hash_table)
         {
-            for (int j = ibf_args.number_expression_levels - 1; j >= 0 ; --j)
+            for (int j = 0; j < ibf_args.number_expression_levels ; ++j)
             {
                 if constexpr (samplewise)
                 {
                     if (elem.second >= expression_levels[j])
                     {
                         ibfs[j].emplace(elem.first, seqan3::bin_index{i});
+                    }
+                    else
+                    {
                         break;
                     }
                 }
@@ -352,6 +355,9 @@ void ibf_helper(std::vector<std::filesystem::path> const & minimiser_files, argu
                     if (elem.second >= ibf_args.expression_levels[j])
                     {
                         ibfs[j].emplace(elem.first, seqan3::bin_index{i});
+                    }
+                    else
+                    {
                         break;
                     }
                 }
