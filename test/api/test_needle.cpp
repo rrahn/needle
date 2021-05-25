@@ -5,8 +5,6 @@
 #include "minimiser.h"
 #include "estimate.h"
 
-#include <seqan3/core/debug_stream.hpp>
-
 #ifndef DATA_INPUT_DIR
 #  define DATA_INPUT_DIR @DATA_INPUT_DIR@
 #endif
@@ -696,7 +694,7 @@ TEST(estimate, example)
     std::vector<std::filesystem::path> sequence_files = {std::string(DATA_INPUT_DIR) + "exp_01.fasta", std::string(DATA_INPUT_DIR) + "exp_02.fasta",
                                                          std::string(DATA_INPUT_DIR) + "exp_11.fasta", std::string(DATA_INPUT_DIR) + "exp_12.fasta"};
     minimiser_args.samples = {2,2};
-    ibf_args.expression_levels = {32};
+    ibf_args.expression_levels = {4, 32};
     ibf_args.bin_size = {100000};
     args.path_out = tmp_dir/"Test_";
     args.compressed = false;
@@ -706,7 +704,7 @@ TEST(estimate, example)
 
     std::ifstream output_file(tmp_dir/"expression.out");
     std::string line;
-    std::string expected{"GeneA\t0\t32\t"};
+    std::string expected{"GeneA\t12\t40\t"};
     if (output_file.is_open())
     {
         while ( std::getline (output_file,line) )
@@ -739,7 +737,7 @@ TEST(estimate, example_multiple_threads)
 
     std::ifstream output_file(tmp_dir/"expression.out");
     std::string line;
-    std::string expected{"GeneA\t12\t32\t"};
+    std::string expected{"GeneA\t12\t40\t"};
     if (output_file.is_open())
     {
         while ( std::getline (output_file,line) )
@@ -777,7 +775,7 @@ TEST(estimate, example_different_expressions_per_level)
     std::ifstream output_file(tmp_dir/"expression.out");
     std::string line;
     // Count would expect 6 and 34
-    std::string expected{"GeneA\t4\t26\t"};
+    std::string expected{"GeneA\t6\t39\t"};
     if (output_file.is_open())
     {
         while ( std::getline (output_file,line) )
@@ -818,7 +816,7 @@ TEST(estimate, example_different_expressions_per_level_multiple_threads)
     std::ifstream output_file(tmp_dir/"expression.out");
     std::string line;
     // Count would expect 6 and 34
-    std::string expected{"GeneA\t4\t26\t"};
+    std::string expected{"GeneA\t6\t39\t"};
     if (output_file.is_open())
     {
         while ( std::getline (output_file,line) )
